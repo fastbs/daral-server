@@ -1,0 +1,73 @@
+    console.log('    -> userId: ', userId);
+    /*     Menu.find({}).sort('id').exec((err, menu) => {
+      if (err)
+          throw (err);
+      if (!menu) {
+          res.json({});
+      } else {
+          let p = [];
+          for (let item of menu) {
+              if (req.user.roles.filter(x => item.roles.includes(x)).length > 0) {
+                  p.push(item);
+              }
+          }
+          res.json({ menu: p });
+      }
+  });
+*/
+    const u: any = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        userRoles: true,
+      },
+    });
+    const r = await this.prisma.userRole.findMany({
+      where: {
+        userId: userId,
+      },
+      select: {
+        role: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+    const m: any = await this.prisma.menu.findMany({
+      include: {
+        menuRoles: true,
+      },
+      orderBy: {
+        order: 'asc',
+      },
+    });
+
+    m.forEach((el: any) => {
+      console.log('*** ', el.menuRoles);
+    });
+
+    let p = [];
+    m.forEach((item: any) => {
+      console.log('++', item.menuRoles);
+      if (u.userRoles.filter((x: any) => item.menuRoles.includes(x)).length > 0) {
+        p.push(item);
+      }
+    });
+    // ->u.userRoles [ { id: 1, userId: 1, roleId: 1 }, { id: 13, userId: 1, roleId: 2 } ]
+
+    //++ [
+    //{ id: 15, menuId: 10, roleId: -1 },
+    //{ id: 21, menuId: 10, roleId: 1 },
+    //  { id: 28, menuId: 10, roleId: 2 }
+    // ]
+    //++ [ { id: 1, menuId: 1, roleId: -1 } ]
+    //++ [ { id: 3, menuId: 3, roleId: -1 } ]
+    //++ [ { id: 6, menuId: 6, roleId: 1 }, { id: 10, menuId: 6, roleId: 2 } ]
+
+    console.log('   -> r : ', r);
+    console.log('   -> u :', u);
+    console.log('    ->u.userRoles', u.userRoles);
+    console.log('   -> m :', m);

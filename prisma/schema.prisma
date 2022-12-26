@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id        Int                   @id @default(autoincrement())
+  name      String
+  menuRoles MenuRole[]
+  userRoles UserRole[]
+  raRoles   ResourceActionRoles[]
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  name      String?
+  password  String?
+  userRoles UserRole[]
+}
+
+model UserRole {
+  id     Int   @id @default(autoincrement())
+  user   User? @relation(fields: [userId], references: [id])
+  userId Int?
+  role   Role? @relation(fields: [roleId], references: [id])
+  roleId Int?
+}
+
+model Menu {
+  id        Int        @id @default(autoincrement())
+  name      String
+  route     String
+  order     Int?
+  icon      String?
+  menuRoles MenuRole[]
+}
+
+model MenuRole {
+  id     Int   @id @default(autoincrement())
+  menu   Menu? @relation(fields: [menuId], references: [id])
+  menuId Int?
+  role   Role? @relation(fields: [roleId], references: [id])
+  roleId Int?
+}
+
+model Resource {
+  id          Int              @id @default(autoincrement())
+  route       String
+  description String
+  actions     ResourceAction[]
+}
+
+model ResourceAction {
+  id         Int                   @id @default(autoincrement())
+  name       String
+  resource   Resource?             @relation(fields: [resourceId], references: [id])
+  resourceId Int?
+  roles      ResourceActionRoles[]
+}
+
+model ResourceActionRoles {
+  id                Int             @id @default(autoincrement())
+  resourceAction    ResourceAction? @relation(fields: [resourceActionId], references: [id])
+  resourceActionId  Int?
+  role              Role?           @relation(fields: [roleId], references: [id])
+  roleId            Int?
+}
+
+model ResMenuCategory {
+  id                Int             @id @default(autoincrement())
+  name              String
+  description       String
+  ResMenuItems      ResMenuItem[]  
+}
+
+model ResMenuItem {
+  id                Int             @id @default(autoincrement())
+  name              String
+  description       String
+  category          ResMenuCategory @relation(fields: [categoryId], references: [id])
+  categoryId        Int
+  filename          String?
+}
