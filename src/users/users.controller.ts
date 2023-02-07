@@ -32,9 +32,22 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('permissions')
+  async getAllPermissions(@Req() req: Request) {
+    const b: any = req.user;
+    return this.usersService.getAllPermissions(b.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('menu')
   async getMenu(@Req() req: Request) {
     const b: any = req.user;
     return this.usersService.getMenu(b.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('checkSession')
+  async checkSession(@Req() req: Request) {
+    return req.user;
   }
 }

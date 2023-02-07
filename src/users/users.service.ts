@@ -57,6 +57,15 @@ export class UsersService {
     return { permissions: result };
   }
 
+  async getAllPermissions(userId: number) {
+    const result = await this.prisma
+      .$queryRaw`SELECT DISTINCT t3."route", t4."name"
+    FROM PUBLIC."User" AS t1, PUBLIC."UserRole" AS t2, PUBLIC."Resource" AS t3, PUBLIC."ResourceAction" AS t4, PUBLIC."ResourceActionRoles" AS t5 
+    WHERE t1."id"=${userId} AND t2."userId"=t1."id" AND t4."resourceId"=t3."id" AND t5."resourceActionId"=t4."id" AND t5."roleId"=t2."roleId";`;
+
+    return { permissions: result };
+  }
+
   async getMenu(userId: number) {
     const result = await this.prisma.$queryRaw`SELECT distinct t1.*
     FROM public."Menu" AS t1, PUBLIC."MenuRole" AS t2, PUBLIC."Role" AS t3, PUBLIC."User" AS t4, PUBLIC."UserRole" AS t5

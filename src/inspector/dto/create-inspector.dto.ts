@@ -1,4 +1,4 @@
-export class CreateMenuDto {
+export class CreateInspectorDto {
   name: string;
   description: string;
   categoryId: number;

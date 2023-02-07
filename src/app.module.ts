@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { MenuModule } from './menu/menu.module';
+import { InspectorModule } from './inspector/inspector.module';
 import { LoggerMiddleware } from './logger.middleware';
 import { MulterModule } from '@nestjs/platform-express';
 
@@ -12,6 +13,7 @@ import { MulterModule } from '@nestjs/platform-express';
     AuthModule,
     UsersModule,
     MenuModule,
+    InspectorModule,
     MulterModule.register({
       dest: './uploads',
     }),

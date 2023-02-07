@@ -35,12 +35,13 @@ model UserRole {
 }
 
 model Menu {
-  id        Int        @id @default(autoincrement())
-  name      String
-  route     String
-  order     Int?
-  icon      String?
-  menuRoles MenuRole[]
+  id          Int        @id @default(autoincrement())
+  name        String
+  route       String
+  order       Int?
+  icon        String?
+  menuRoles   MenuRole[]
+  icon_mobile String?
 }
 
 model MenuRole {
@@ -67,25 +68,43 @@ model ResourceAction {
 }
 
 model ResourceActionRoles {
-  id                Int             @id @default(autoincrement())
-  resourceAction    ResourceAction? @relation(fields: [resourceActionId], references: [id])
-  resourceActionId  Int?
-  role              Role?           @relation(fields: [roleId], references: [id])
-  roleId            Int?
+  id               Int             @id @default(autoincrement())
+  resourceAction   ResourceAction? @relation(fields: [resourceActionId], references: [id])
+  resourceActionId Int?
+  role             Role?           @relation(fields: [roleId], references: [id])
+  roleId           Int?
 }
 
 model ResMenuCategory {
-  id                Int             @id @default(autoincrement())
-  name              String
-  description       String
-  ResMenuItems      ResMenuItem[]  
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String
+  ResMenuItems ResMenuItem[]
 }
 
 model ResMenuItem {
-  id                Int             @id @default(autoincrement())
-  name              String
-  description       String
-  category          ResMenuCategory @relation(fields: [categoryId], references: [id])
-  categoryId        Int
-  filename          String?
+  id          Int             @id @default(autoincrement())
+  name        String
+  description String
+  category    ResMenuCategory @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  filename    String?
+}
+
+model InspectorCategory {
+  id           Int             @id @default(autoincrement())
+  name         String
+  description  String
+  ResMenuItems InspectorItem[]
+  icon         String?
+  icon_mobile  String?
+}
+
+model InspectorItem {
+  id          Int               @id @default(autoincrement())
+  name        String
+  description String
+  category    InspectorCategory @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  filename    String?
 }

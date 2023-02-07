@@ -14,9 +14,9 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { imageFileFilter } from './file-upload.utils';
 import { Express, Response } from 'express';
-import { MenuService } from './menu.service';
-import { CreateMenuDto } from './dto/create-menu.dto';
-import { UpdateMenuDto } from './dto/update-menu.dto';
+import { InspectorService } from './inspector.service';
+import { CreateInspectorDto } from './dto/create-inspector.dto';
+import { UpdateInspectorDto } from './dto/update-inspector.dto';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -24,33 +24,33 @@ import { rename } from 'node:fs/promises';
 
 const filepath = 'uploads';
 
-@Controller('resource/menu')
-export class MenuController {
-  constructor(private readonly menuService: MenuService) {}
+@Controller('resource/inspector')
+export class InspectorController {
+  constructor(private readonly inspectorService: InspectorService) {}
 
   @Get()
   @Roles('Admin', 'User')
   @UseGuards(JwtAuthGuard, RolesGuard)
   findAll() {
-    return this.menuService.findAll();
+    return this.inspectorService.findAll();
   }
 
   @Get('categories')
   @Roles('Admin', 'User')
   @UseGuards(JwtAuthGuard, RolesGuard)
   getCategories() {
-    return this.menuService.getCategories();
+    return this.inspectorService.getCategories();
   }
 
   @Get(':id')
   @Roles('Admin', 'User')
   @UseGuards(JwtAuthGuard, RolesGuard)
   findOne(@Param('id') id: number) {
-    return this.menuService.findOne(+id);
+    return this.inspectorService.findOne(+id);
   }
 
   @Post()
-  @Roles('Admin')
+  @Roles('Admin', 'Publisher')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UseInterceptors(
     FileInterceptor('attachment', {
@@ -60,25 +60,28 @@ export class MenuController {
   )
   async create(
     @UploadedFile() file: Express.Multer.File,
-    @Body() createMenuDto: CreateMenuDto,
+    @Body() createInspectorDto: CreateInspectorDto,
   ) {
-    createMenuDto.categoryId = Number(createMenuDto.categoryId);
-    const result = await this.menuService.create(createMenuDto);
+    createInspectorDto.categoryId = Number(createInspectorDto.categoryId);
+    const result = await this.inspectorService.create(createInspectorDto);
 
     if (file) {
-      const newfilename = `${String(result.menu.id).padStart(6, '0')}-${
+      const newfilename = `${String(result.inspector.id).padStart(6, '0')}-${
         file.originalname
       }`;
       const newpath = `${filepath}\\${newfilename}`;
       rename(file.path, newpath);
-      await this.menuService.addImageRecord(newfilename, result.menu.id);
+      await this.inspectorService.addImageRecord(
+        newfilename,
+        result.inspector.id,
+      );
     }
 
     return result;
   }
 
   @Patch(':id')
-  @Roles('Admin')
+  @Roles('Admin', 'Publisher')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UseInterceptors(
     FileInterceptor('attachment', {
@@ -89,39 +92,39 @@ export class MenuController {
   async update(
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
-    @Body() updateMenuDto: UpdateMenuDto, //@Param('id') id: string, @Body() updateMenuDto: UpdateMenuDto) {
+    @Body() updateInspectorDto: UpdateInspectorDto, //@Param('id') id: string, @Body() updateInspectorDto: UpdateInspectorDto) {
   ) {
-    console.log(' umdto: ', updateMenuDto);
+    console.log(' umdto: ', updateInspectorDto);
     console.log(' file: ', file);
-    updateMenuDto.id = Number(updateMenuDto.id);
-    updateMenuDto.categoryId = Number(updateMenuDto.categoryId);
-    const result = await this.menuService.update(+id, updateMenuDto);
+    updateInspectorDto.id = Number(updateInspectorDto.id);
+    updateInspectorDto.categoryId = Number(updateInspectorDto.categoryId);
+    const result = await this.inspectorService.update(+id, updateInspectorDto);
 
     if (file) {
-      const newfilename = `${String(result.menu.id).padStart(6, '0')}-${
+      const newfilename = `${String(result.inspector.id).padStart(6, '0')}-${
         file.originalname
       }`;
       const newpath = `${filepath}\\${newfilename}`;
       rename(file.path, newpath);
-      await this.menuService.addImageRecord(newfilename, +id);
+      await this.inspectorService.addImageRecord(newfilename, +id);
     }
 
     return result;
   }
 
   @Delete(':id')
-  @Roles('Admin')
+  @Roles('Admin', 'Publisher')
   @UseGuards(JwtAuthGuard, RolesGuard)
   remove(@Param('id') id: string) {
-    return this.menuService.remove(+id);
+    return this.inspectorService.remove(+id);
   }
 
   @Get('image/:id')
   async getImage(@Param('id') id: number, @Res() res: Response) {
-    const result = await this.menuService.findOne(+id);
+    const result = await this.inspectorService.findOne(+id);
     let filename = '';
-    if (result && result.menu && result.menu.filename) {
-      filename = result.menu.filename;
+    if (result && result.inspector && result.inspector.filename) {
+      filename = result.inspector.filename;
     }
     const options = {
       root: `./${filepath}`,
